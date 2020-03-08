@@ -2,6 +2,6 @@
 
 ## socket connect
 
-![connect socket]("./assets/socket-connect.png")
+![connect socket](./assets/socket-connect.png)
 ## events communication
-![events socket]("assets/socket-connect.png")
+![events socket](./assets/events-send-recive-app.png)
