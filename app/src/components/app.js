@@ -2,11 +2,12 @@ import React from "react";
 import { Layout, Menu, Row, Col, Card, Meta, Avatar } from "antd";
 import { SiderContent } from "./sider";
 import { EditOutlined, DeleteOutlined, SendOutlined } from '@ant-design/icons';
+import "./app.css";
 const { Header, Footer, Sider, Content } = Layout;
 
 export function AppScreen(props) {
   return (
-    <Layout>
+    <Layout className="site-layout-background">
       <Sider width={props.width || 200}  style={{
         overflow: 'auto',
         height: '100vh',
@@ -21,13 +22,14 @@ export function AppScreen(props) {
           onRemoveEventListener={props.onRemoveEventListener}
         ></SiderContent>
       </Sider>
-      <Content  className="site-layout-background"
+      <Content  
           // style={{
           //   padding: 24,
           //   margin: 0,
           //   minHeight: 280,
           // }}
-          style={{ padding: 24, marginLeft:props.width || 200 , overflowY: 'scroll', overflowX: 'hidden', height: '100%' }}>
+          style={{ padding: 24, marginLeft:props.width || 200, height: '100%' }}
+         >
         <Row>
           <Col span={12}>
           <h3>Listen:Listen for server</h3>
