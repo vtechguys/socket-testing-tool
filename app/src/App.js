@@ -176,18 +176,26 @@ class App extends React.Component {
   }
   onSendEventRemove({ event }) {
     console.log("onSendEventRemove", event);
-    const { sendEvents } = this.state;
+    const { sendEvents, history } = this.state;
     const index = sendEvents.findIndex(e => e.event === event);
     console.log("index", index);
-
+    let newHistory = null;
+    if(history){
+      newHistory = {...history};
+      if(event in history){
+        delete history[event];
+      }
+    }
     if (index == -1) {
       return;
     }
+    
     const newSendEvents = [...sendEvents];
     newSendEvents.splice(index, 1);
     console.log("newSendEvents", newSendEvents);
     this.setState({
-      sendEvents: newSendEvents
+      sendEvents: newSendEvents,
+      history: newHistory
     });
   }
   onAddListener({ event }) {
@@ -206,9 +214,14 @@ class App extends React.Component {
     console.log("onRemoveEventListener", event);
 
     const { listenEvents, socket, history } = this.state;
-    if (history && event in history) {
-      delete history[event];
+    let newHistory = null;
+    if(history){
+      newHistory = {...history};
+      if(event in history){
+        delete history[event];
+      }
     }
+    
     const index = listenEvents.findIndex(e => e.event === event);
     if (index == -1) {
       return;
@@ -216,7 +229,8 @@ class App extends React.Component {
     const newListenerEvents = [...listenEvents];
     newListenerEvents.splice(index, 1);
     this.setState({
-      listenEvents: newListenerEvents
+      listenEvents: newListenerEvents,
+      history: newHistory
     });
     socket.off(event);
   }
