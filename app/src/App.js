@@ -1,10 +1,9 @@
 import React from "react";
-import clientIo from "socket.io-client";
 import { Spin } from "antd";
 import { SocketConnectForm } from "./components/SocketConnect";
 import { AppScreen } from "./components/app";
 
-import { tryToSubscribe, Connection } from "./utils/socket";
+import { tryToSubscribe } from "./utils/socket";
 
 const socketConnectExternalStyle = {
   height: "20%"
@@ -20,7 +19,10 @@ class App extends React.Component {
       isConnected: false,
       socket: null,
       sendEvents: [],
-      listenEvents: []
+      listenEvents: [],
+      countLimit: 100,
+      history: null,
+      selected: null
     };
     this.tryToConnectHandler = this.tryToConnectHandler.bind(this);
     this.socketConnect = this.socketConnect.bind(this);
@@ -30,6 +32,7 @@ class App extends React.Component {
     this.onAddListener = this.onAddListener.bind(this);
     this.onSendEventRemove = this.onSendEventRemove.bind(this);
     this.onRemoveEventListener = this.onRemoveEventListener.bind(this);
+    this.setSelectedForHistoryView = this.setSelectedForHistoryView.bind(this);
   }
   socketConnect() {
     this.setState({
@@ -38,10 +41,12 @@ class App extends React.Component {
     });
   }
   someListenerTriggered(event, data) {
-    const { listenEvents } = this.state;
+    const { listenEvents, history } = this.state;
+    let ev = null;
     const newListenerEvents = listenEvents.map(e => {
       if (e.event === event) {
-        let count = e.count++;
+        ev = e;
+        let count = e.count + 1;
         return {
           ...e,
           data,
@@ -50,8 +55,37 @@ class App extends React.Component {
       }
       return e;
     });
+
+    let newHistory = null;
+    if (!history) {
+      newHistory = {
+        [event]: [
+          {
+            timestamp: Date.now(),
+            ...ev
+          }
+        ]
+      };
+    } else {
+      newHistory = { ...history };
+      if (event in history) {
+        newHistory[event].push({
+          timestamp: Date.now(),
+          ...ev
+        });
+      } else {
+        newHistory[event] = [
+          {
+            timestamp: Date.now(),
+            ...ev
+          }
+        ];
+      }
+    }
+
     this.setState({
-      listenEvents: newListenerEvents
+      listenEvents: newListenerEvents,
+      history: newHistory
     });
   }
   socketDisconnect() {}
@@ -59,36 +93,99 @@ class App extends React.Component {
     console.log(args);
   }
   onSendEvent({ event, data }) {
-    const index = this.state.sendEvents.findIndex(e => e.event === event);
-    const isAlreadyExist =
-      index > -1;
+    const { socket, history, sendEvents } = this.state;
+    const index = sendEvents.findIndex(e => e.event === event);
+    const isAlreadyExist = index > -1;
+    let newHistory = null;
+
     if (isAlreadyExist) {
-      const { socket, sendEvents } = this.state;
       const newSendEvents = [...sendEvents];
       newSendEvents[index].count++;
-      newSendEvents[index].data = data;
-      this.setState({sendEvents: newSendEvents});
+
+      (newSendEvents[index].data = data);
+      let ev = newSendEvents[index];
+      if (!history) {
+        console.log("1");
+        newHistory = {
+          [event]: [
+            {
+              timestamp: Date.now(),
+              ...ev
+            }
+          ]
+        };
+      } else {
+        newHistory = { ...history };
+        if (event in history) {
+          console.log("2");
+          newHistory[event].push({
+            timestamp: Date.now(),
+            ...ev,
+            key: ev.count
+          });
+        } else {
+          console.log("3", event);
+          newHistory[event] = [
+            {
+              timestamp: Date.now(),
+              ...ev
+            }
+          ];
+        }
+      }
+
+      this.setState({ sendEvents: newSendEvents, history: newHistory });
       socket.emit(event, data);
       return;
     }
+    let ev = { event, data, count: 1 };
+    if (!history) {
+      console.log("1");
+      newHistory = {
+        [event]: [
+          {
+            timestamp: Date.now(),
+            ...ev
+          }
+        ]
+      };
+    } else {
+      newHistory = { ...history };
+      if (event in history) {
+        console.log("2");
+        newHistory[event].push({
+          timestamp: Date.now(),
+          ...ev,
+          key: ev.count
+        });
+      } else {
+        console.log("3", event);
+        newHistory[event] = [
+          {
+            timestamp: Date.now(),
+            ...ev
+          }
+        ];
+      }
+    }
     this.setState(prevState => ({
-      sendEvents: prevState.sendEvents.concat({ event, data, count: 0 })
+      sendEvents: prevState.sendEvents.concat(ev),
+      history: newHistory
     }));
-    const { socket } = this.state;
     socket.emit(event, data);
   }
-  onSendEventRemove({event}) {
-    console.log('onSendEventRemove', event);
+  onSendEventRemove({ event }) {
+    console.log("onSendEventRemove", event);
     const { sendEvents } = this.state;
     const index = sendEvents.findIndex(e => e.event === event);
-    console.log('index', index);
+    console.log("index", index);
 
     if (index == -1) {
       return;
     }
     const newSendEvents = [...sendEvents];
     newSendEvents.splice(index, 1);
-    console.log('newSendEvents', newSendEvents);
+    console.log("newSendEvents", newSendEvents);
     this.setState({
       sendEvents: newSendEvents
     });
@@ -105,10 +202,13 @@ class App extends React.Component {
     const { socket } = this.state;
     socket.on(event, data => this.someListenerTriggered(event, data));
   }
-  onRemoveEventListener({event}) {
-    console.log('onRemoveEventListener', event);
+  onRemoveEventListener({ event }) {
+    console.log("onRemoveEventListener", event);
 
-    const { listenEvents, socket } = this.state;
+    const { listenEvents, socket, history } = this.state;
+    if (history && event in history) {
+      delete history[event];
+    }
     const index = listenEvents.findIndex(e => e.event === event);
     if (index == -1) {
       return;
@@ -132,11 +232,16 @@ class App extends React.Component {
       isLoading: true
     });
   }
-  onEditListener(event){
+  onEditListener(event) {
     console.log(event);
   }
-  onEditSendEvent(event){
+  onEditSendEvent(event) {
     console.log(event);
+  }
+  setSelectedForHistoryView({ event }) {
+    this.setState({
+      selected: event
+    });
   }
   render() {
     console.log("render", this.state);
@@ -172,6 +277,10 @@ class App extends React.Component {
           sendEvents={this.state.sendEvents}
           onEditListener={this.onEditListener}
           onEditSendEvent={this.onEditSendEvent}
+          countLimit={this.state.countLimit}
+          history={this.state.history}
+          selected={this.state.selected}
+          setSelected={this.setSelectedForHistoryView}
         ></AppScreen>
       );
     }

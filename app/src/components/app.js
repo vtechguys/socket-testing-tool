@@ -1,86 +1,156 @@
 import React from "react";
-import { Layout, Menu, Row, Col, Card, Meta, Avatar } from "antd";
+import { Row, Col, Card, Badge, Drawer, Empty, } from "antd";
 import { SiderContent } from "./sider";
-import { EditOutlined, DeleteOutlined, SendOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, SendOutlined, SyncOutlined } from "@ant-design/icons";
+import { SITE_BACKGROUND_COLOR } from "./theme";
+import { HistoryContent } from './Eventhistory';
 import "./app.css";
-const { Header, Footer, Sider, Content } = Layout;
 
 export function AppScreen(props) {
+  const [isVisible, setIsVisible] = React.useState(false);
+  const onClose = () => setIsVisible(false);
+  const onBadgeClick = (event) => {
+    props.setSelected(event);
+    setIsVisible(true);
+  };
   return (
-    <Layout className="site-layout-background">
-      <Sider width={props.width || 200}  style={{
-        overflow: 'auto',
-        height: '100vh',
-        position: 'fixed',
-        left: 0,
-        color: '#fff'
-      }}>
-        <SiderContent
-          onSendEvent={props.onSendEvent}
-          onSendEventRemove={props.onSendEventRemove}
-          onAddListener={props.onAddListener}
-          onRemoveEventListener={props.onRemoveEventListener}
-        ></SiderContent>
-      </Sider>
-      <Content  
-          // style={{
-          //   padding: 24,
-          //   margin: 0,
-          //   minHeight: 280,
-          // }}
-          style={{ padding: 24, marginLeft:props.width || 200, height: '100%' }}
-         >
+    <Row style={{
+
+    }}>
+      <Col span={24}>
         <Row>
-          <Col span={12}>
-          <h3>Listen:Listen for server</h3>
-
+          <h1>Header</h1>
+        </Row>
+        <Row gutter={[32, 10]}>
+          <Drawer
+            title={<span><SyncOutlined /> {" "} History</span>}
+            placement="right"
+            closable={false}
+            onClose={onClose}
+            visible={isVisible}
+          >
             {
-              props.listenEvents.map(event=>(
-                <Card
-                style={{ width: 300, marginTop: 16 }}
-                actions={[
-                  <EditOutlined key="edit" onClick={()=>props.onEditListener(event)}/>,
-                  <DeleteOutlined key="ellipsis" onClick={(()=>props.onRemoveEventListener(event))}/>,
-                ]}
-              >
-                  <Card.Meta
-                    avatar={
-                      <Avatar src="https://www.pinclipart.com/picdir/middle/71-713909_headphones-clipart-svg-cartoon-headphones-png-transparent-png.png" />
-                    }
-                    title={event.event }
-                    description={event.data ? event.data: '' }
-                  />
-              </Card>
-              ))
+               props.history && props.selected &&  props.history[props.selected]
+               ? 
+               <HistoryContent history={props.history[props.selected]}/>
+               : <Empty
+               description={
+                 "No Records found"
+               }
+             >
+             </Empty> 
             }
+          </Drawer>
+          <Col span={6}>
+            <SiderContent
+              onSendEvent={props.onSendEvent}
+              onSendEventRemove={props.onSendEventRemove}
+              onAddListener={props.onAddListener}
+              onRemoveEventListener={props.onRemoveEventListener}
+            ></SiderContent>
           </Col>
-          <Col span={12}>
-          <h3>Send:Emit to server</h3>
+          <Col
+            span={18}
+            style={{
+              backgroundColor: SITE_BACKGROUND_COLOR
+            }}
+          >
+            <Row gutter={[10, 10]}>
+              <Col span={12}>
+                <h3
+                  style={{
+                    margin: 10
+                  }}
+                >
+                  Listen:Listen for server
+                </h3>
+                {props.listenEvents.map(event => (
+                  <Badge
+                    count={event.count}
+                    overflowCount={props.countLimit ? props.countLimit : 10}
+                    offset={[0, 20]}
+                    key={event.event}
+                    onClick={() => onBadgeClick(event) }
+                  >
+                    <Card
+                      style={{ width: 300, marginTop: 16 }}
+                      actions={[
+                        <EditOutlined
+                          key="edit"
+                          onClick={() => props.onEditListener(event)}
+                        />,
+                        <DeleteOutlined
+                          key="ellipsis"
+                          onClick={() => props.onRemoveEventListener(event)}
+                        />
+                      ]}
+                    >
+                      <Card.Meta
+                        avatar={
+                          <span role="img" aria-label="listen">
+                            🎧
+                          </span>
+                        }
+                        title={event.event}
+                        description={event.data ? event.data : ""}
+                      />
+                    </Card>
+                  </Badge>
+                ))}
+              </Col>
+              <Col span={12}>
+                <h3
+                  style={{
+                    margin: 10
+                  }}
+                >
+                  Send:Emit to server
+                </h3>
 
-          {
-              props.sendEvents.map(event=>(
-                <Card
-                style={{ width: 300, marginTop: 16 }}
-                actions={[
-                  <SendOutlined key="ellipsis" onClick={()=>props.onSendEvent(event)} rotate={-30}/>,
-                  <EditOutlined key="edit" onClick={()=>props.onEditSendEvent(event)}/>,
-                  <DeleteOutlined key="delete" onClick={()=>props.onSendEventRemove(event)}/>,
-                ]}
-              >
-                  <Card.Meta
-                    avatar={
-                      <Avatar src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.explicit.bing.net%2Fth%3Fid%3DOIP.p2jcU2EXZs0xsJwIlWHJMgHaHa%26pid" />
-                    }
-                    title={event.event }
-                    description={event.data ? event.data: '' }
-                    
-                  />
-              </Card>
-              ))
-            }
+                {props.sendEvents.map(event => (
+                  <Badge
+                    count={event.count}
+                    overflowCount={props.countLimit ? props.countLimit : 10}
+                    offset={[0, 20]}
+                    key={event.event}
+                    onClick={()=>onBadgeClick(event)}
+                  >
+                    <Card
+                      key={event.event}
+                      style={{ width: 300, marginTop: 16 }}
+                      actions={[
+                        <SendOutlined
+                          key="ellipsis"
+                          onClick={() => props.onSendEvent(event)}
+                          rotate={-30}
+                        />,
+                        <EditOutlined
+                          key="edit"
+                          onClick={() => props.onEditSendEvent(event)}
+                        />,
+                        <DeleteOutlined
+                          key="delete"
+                          onClick={() => props.onSendEventRemove(event)}
+                        />
+                      ]}
+                    >
+                      <Card.Meta
+                        avatar={
+                          <span role="img" aria-label="listen">
+                            🚀
+                          </span>
+                        }
+                        title={event.event}
+                        description={event.data ? event.data : ""}
+                      />
+                    </Card>
+                  </Badge>
+                ))}
+              </Col>
+            </Row>
           </Col>
         </Row>
-      </Content>
-    </Layout>
+      </Col>
+    </Row>
   );
 }

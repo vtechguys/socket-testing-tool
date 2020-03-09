@@ -3,7 +3,7 @@ import { Form, Input, Button, Checkbox, Icon } from "antd";
 import "./SocketConnect.css";
 const layout = {
   
-  width: '80%'
+  // width: '80%'
 };
 const tailLayout = {
   wrapperCol: {

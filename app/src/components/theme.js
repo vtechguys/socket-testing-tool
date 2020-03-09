@@ -1,3 +1,1 @@
-export const theme = {
-    
-};
+export const SITE_BACKGROUND_COLOR = '#F5F5F5';
