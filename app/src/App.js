@@ -2,14 +2,7 @@ import React from "react";
 import { Spin, message } from "antd";
 import { SocketConnectForm } from "./components/SocketConnect";
 import { AppScreen } from "./components/AppScreen";
-
-import { tryToSubscribe } from "./utils/socket";
-
-const Message = event => (
-  <span>
-    🎧 Event: <strong>"{event}"</strong> triggered
-  </span>
-);
+import { tryToSubscribe, unsubscribe } from "./utils/socket";
 const socketConnectExternalStyle = {
   height: "20%"
 };
@@ -28,7 +21,8 @@ class App extends React.Component {
       countLimit: 100,
       history: null,
       selected: null,
-      event: null
+      event: null,
+      timebasedEvent: null
     };
     this.tryToConnectHandler = this.tryToConnectHandler.bind(this);
     this.socketConnect = this.socketConnect.bind(this);
@@ -100,7 +94,7 @@ class App extends React.Component {
   socketEvent(...args) {
     console.log(args);
   }
-  onSendEvent({ event, data }) {
+  onSendEvent({ event, data, time, timmer }) {
     const { socket, history, sendEvents } = this.state;
     const index = sendEvents.findIndex(e => e.event === event);
     const isAlreadyExist = index > -1;
@@ -275,12 +269,43 @@ class App extends React.Component {
       content: (
         <>
           <span role="img" aria-label="listen">
-              🎧
-          </span> 
+            🎧
+          </span>
           Event: <strong>{event}</strong> triggered
         </>
       )
     });
+  }
+  setStateToDefaults() {
+    this.setState({
+      isLoading: false,
+      isConnected: false,
+      socket: null,
+      sendEvents: [],
+      listenEvents: [],
+      countLimit: 100,
+      history: null,
+      selected: null,
+      event: null,
+      timebasedEvent: null
+    });
+  }
+  unsubscribeTheSocketConnection({ triggeredFrom = null }) {
+    const { socket, timebasedEvent } = this.state;
+    if (socket) {
+      for (let timer of timebasedEvent) {
+        const { timerID, isInterval } = timer;
+        if (isInterval) {
+          clearInterval(timerID);
+        } else {
+          clearTimeout(timerID);
+        }
+      }
+      unsubscribe(socket);
+      if (!triggeredFrom) {
+        this.setStateToDefaults();
+      }
+    }
   }
   render() {
     console.log("render", this.state);

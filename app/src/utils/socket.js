@@ -24,3 +24,6 @@ export function tryToSubscribe(connection, successCb, eventCb, disconnectCb) {
   socket.on("disconnect", () => disconnectCb(connection));
   return connection;
 }
+export function unsubscribe(socket){
+  socket.close();
+}
