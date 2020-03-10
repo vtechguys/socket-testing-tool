@@ -4,7 +4,7 @@ import { SiderContent } from "./sider";
 import { EditOutlined, DeleteOutlined, SendOutlined, SyncOutlined } from "@ant-design/icons";
 import { SITE_BACKGROUND_COLOR } from "./theme";
 import { HistoryContent } from './Eventhistory';
-import "./app.css";
+import "./AppScreen.css";
 
 export function AppScreen(props) {
   const [isVisible, setIsVisible] = React.useState(false);
@@ -14,16 +14,18 @@ export function AppScreen(props) {
     setIsVisible(true);
   };
   return (
-    <Row style={{
-
+ 
+       <Row style={{
+      overflowX: 'hidden'
     }}>
       <Col span={24}>
-        <Row>
+        <Row >
           <h1>Header</h1>
         </Row>
+        
         <Row gutter={[32, 10]}>
           <Drawer
-            title={<span><SyncOutlined /> {" "} History</span>}
+            title={<span><SyncOutlined />History</span>}
             placement="right"
             closable={false}
             onClose={onClose}
@@ -52,10 +54,11 @@ export function AppScreen(props) {
           <Col
             span={18}
             style={{
-              backgroundColor: SITE_BACKGROUND_COLOR
+              backgroundColor: SITE_BACKGROUND_COLOR,
             }}
+           
           >
-            <Row gutter={[10, 10]}>
+            <Row gutter={[10, 10]} >
               <Col span={12}>
                 <h3
                   style={{
@@ -98,7 +101,7 @@ export function AppScreen(props) {
                   </Badge>
                 ))}
               </Col>
-              <Col span={12}>
+              <Col span={12} >
                 <h3
                   style={{
                     margin: 10
@@ -152,5 +155,8 @@ export function AppScreen(props) {
         </Row>
       </Col>
     </Row>
+  
+ 
+  
   );
 }

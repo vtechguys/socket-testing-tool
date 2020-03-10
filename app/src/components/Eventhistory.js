@@ -1,7 +1,6 @@
 import React from "react";
 import { Timeline, Card } from "antd";
 import { ClockCircleOutlined } from "@ant-design/icons";
-
 export function HistoryContent({ history }) {
   return (
     <Timeline>

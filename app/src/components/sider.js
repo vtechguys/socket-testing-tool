@@ -53,7 +53,7 @@ export function SiderContent(props) {
         <Form.Item>
           <Button type="primary" htmlType="submit">
             Send{" "}
-            <span role="img" aria-label="listen">
+            <span role="img" aria-label="send">
               🚀
             </span>
           </Button>

@@ -1,10 +1,15 @@
 import React from "react";
-import { Spin } from "antd";
+import { Spin, message } from "antd";
 import { SocketConnectForm } from "./components/SocketConnect";
-import { AppScreen } from "./components/app";
+import { AppScreen } from "./components/AppScreen";
 
 import { tryToSubscribe } from "./utils/socket";
 
+const Message = event => (
+  <span>
+    🎧 Event: <strong>"{event}"</strong> triggered
+  </span>
+);
 const socketConnectExternalStyle = {
   height: "20%"
 };
@@ -22,7 +27,8 @@ class App extends React.Component {
       listenEvents: [],
       countLimit: 100,
       history: null,
-      selected: null
+      selected: null,
+      event: null
     };
     this.tryToConnectHandler = this.tryToConnectHandler.bind(this);
     this.socketConnect = this.socketConnect.bind(this);
@@ -85,8 +91,10 @@ class App extends React.Component {
 
     this.setState({
       listenEvents: newListenerEvents,
-      history: newHistory
+      history: newHistory,
+      event: ev
     });
+    this.messageListenerTriggered(ev);
   }
   socketDisconnect() {}
   socketEvent(...args) {
@@ -102,7 +110,7 @@ class App extends React.Component {
       const newSendEvents = [...sendEvents];
       newSendEvents[index].count++;
 
-      (newSendEvents[index].data = data);
+      newSendEvents[index].data = data;
       let ev = newSendEvents[index];
       if (!history) {
         console.log("1");
@@ -134,7 +142,11 @@ class App extends React.Component {
         }
       }
 
-      this.setState({ sendEvents: newSendEvents, history: newHistory });
+      this.setState({
+        sendEvents: newSendEvents,
+        history: newHistory,
+        event: ev
+      });
       socket.emit(event, data);
       return;
     }
@@ -180,16 +192,16 @@ class App extends React.Component {
     const index = sendEvents.findIndex(e => e.event === event);
     console.log("index", index);
     let newHistory = null;
-    if(history){
-      newHistory = {...history};
-      if(event in history){
+    if (history) {
+      newHistory = { ...history };
+      if (event in history) {
         delete history[event];
       }
     }
     if (index == -1) {
       return;
     }
-    
+
     const newSendEvents = [...sendEvents];
     newSendEvents.splice(index, 1);
     console.log("newSendEvents", newSendEvents);
@@ -215,13 +227,13 @@ class App extends React.Component {
 
     const { listenEvents, socket, history } = this.state;
     let newHistory = null;
-    if(history){
-      newHistory = {...history};
-      if(event in history){
+    if (history) {
+      newHistory = { ...history };
+      if (event in history) {
         delete history[event];
       }
     }
-    
+
     const index = listenEvents.findIndex(e => e.event === event);
     if (index == -1) {
       return;
@@ -255,6 +267,19 @@ class App extends React.Component {
   setSelectedForHistoryView({ event }) {
     this.setState({
       selected: event
+    });
+  }
+  messageListenerTriggered({ event }) {
+    console.log("message", event);
+    message.success({
+      content: (
+        <>
+          <span role="img" aria-label="listen">
+              🎧
+          </span> 
+          Event: <strong>{event}</strong> triggered
+        </>
+      )
     });
   }
   render() {
