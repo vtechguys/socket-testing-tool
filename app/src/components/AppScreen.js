@@ -1,47 +1,87 @@
 import React from "react";
-import { Row, Col, Card, Badge, Drawer, Empty, } from "antd";
+import { Row, Col, Card, Badge, Drawer, Empty } from "antd";
 import { SiderContent } from "./sider";
-import { EditOutlined, DeleteOutlined, SendOutlined, SyncOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  SendOutlined,
+  SyncOutlined,
+  PoweroffOutlined
+} from "@ant-design/icons";
 import { SITE_BACKGROUND_COLOR } from "./theme";
-import { HistoryContent } from './Eventhistory';
+import { HistoryContent } from "./Eventhistory";
 import "./AppScreen.css";
 
 export function AppScreen(props) {
   const [isVisible, setIsVisible] = React.useState(false);
   const onClose = () => setIsVisible(false);
-  const onBadgeClick = (event) => {
+  const onBadgeClick = event => {
     props.setSelected(event);
     setIsVisible(true);
   };
   return (
- 
-       <Row style={{
-      overflowX: 'hidden'
-    }}>
+    <Row
+      style={{
+        overflowX: "hidden"
+      }}
+    >
       <Col span={24}>
-        <Row >
-          <h1>Header</h1>
+        <Row
+          gutter={[10, 10]}
+          style={{
+            padding: '10px 20px',
+            backgroundColor: "#4af700",
+            color: "#fff",
+            
+          }}
+          align="middle"
+        >
+          <Col span={4}>
+            <h2 style={{color: '#fff'}}>
+              <span role="img" aria-label="listen">
+                🎧
+              </span>&nbsp;
+              Socket
+              &nbsp;
+              <span role="img" aria-label="listen">
+                🚀
+              </span>
+            </h2>
+          </Col>
+          <Col span={20}>
+            <Row gutter={[5, 5]} style={{
+              fontSize: 20,
+            
+            }}>
+              <Col span={2} push={22}>
+                <Row align="middle" onClick={props.onOff} >
+                  <PoweroffOutlined /> &nbsp; Off
+                </Row>
+              </Col>
+            </Row>
+          </Col>
         </Row>
-        
+
         <Row gutter={[32, 10]}>
           <Drawer
-            title={<span><SyncOutlined />History</span>}
+            title={
+              <span>
+                <SyncOutlined />
+                History
+              </span>
+            }
             placement="right"
             closable={false}
             onClose={onClose}
             visible={isVisible}
           >
-            {
-               props.history && props.selected &&  props.history[props.selected]
-               ? 
-               <HistoryContent history={props.history[props.selected]}/>
-               : <Empty
-               description={
-                 "No Records found"
-               }
-             >
-             </Empty> 
-            }
+            {props.history &&
+            props.selected &&
+            props.history[props.selected] ? (
+              <HistoryContent history={props.history[props.selected]} />
+            ) : (
+              <Empty description={"No Records found"}></Empty>
+            )}
           </Drawer>
           <Col span={6}>
             <SiderContent
@@ -54,11 +94,10 @@ export function AppScreen(props) {
           <Col
             span={18}
             style={{
-              backgroundColor: SITE_BACKGROUND_COLOR,
+              backgroundColor: SITE_BACKGROUND_COLOR
             }}
-           
           >
-            <Row gutter={[10, 10]} >
+            <Row gutter={[10, 10]}>
               <Col span={12}>
                 <h3
                   style={{
@@ -73,7 +112,7 @@ export function AppScreen(props) {
                     overflowCount={props.countLimit ? props.countLimit : 10}
                     offset={[0, 20]}
                     key={event.event}
-                    onClick={() => onBadgeClick(event) }
+                    onClick={() => onBadgeClick(event)}
                   >
                     <Card
                       style={{ width: 300, marginTop: 16 }}
@@ -101,7 +140,7 @@ export function AppScreen(props) {
                   </Badge>
                 ))}
               </Col>
-              <Col span={12} >
+              <Col span={12}>
                 <h3
                   style={{
                     margin: 10
@@ -116,7 +155,7 @@ export function AppScreen(props) {
                     overflowCount={props.countLimit ? props.countLimit : 10}
                     offset={[0, 20]}
                     key={event.event}
-                    onClick={()=>onBadgeClick(event)}
+                    onClick={() => onBadgeClick(event)}
                   >
                     <Card
                       key={event.event}
@@ -155,8 +194,5 @@ export function AppScreen(props) {
         </Row>
       </Col>
     </Row>
-  
- 
-  
   );
 }

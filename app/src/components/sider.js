@@ -25,7 +25,9 @@ export function SiderContent(props) {
   }
 
   return (
-    <>
+    <div style={{
+      padding: 10
+    }}>
       <h2>Events</h2>
 
       <Divider>Send Event </Divider>
@@ -52,7 +54,7 @@ export function SiderContent(props) {
 
         <Form.Item>
           <Button type="primary" htmlType="submit">
-            Send{" "}
+            Send &nbsp;
             <span role="img" aria-label="send">
               🚀
             </span>
@@ -79,13 +81,13 @@ export function SiderContent(props) {
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit">
-            Listen
+            Listen &nbsp;
             <span role="img" aria-label="listen">
               🎧
             </span>
           </Button>
         </Form.Item>
       </Form>
-    </>
+    </div>
   );
 }

@@ -22,7 +22,7 @@ class App extends React.Component {
       history: null,
       selected: null,
       event: null,
-      timebasedEvent: null
+      timebasedEvent: []
     };
     this.tryToConnectHandler = this.tryToConnectHandler.bind(this);
     this.socketConnect = this.socketConnect.bind(this);
@@ -33,6 +33,7 @@ class App extends React.Component {
     this.onSendEventRemove = this.onSendEventRemove.bind(this);
     this.onRemoveEventListener = this.onRemoveEventListener.bind(this);
     this.setSelectedForHistoryView = this.setSelectedForHistoryView.bind(this);
+    this.unsubscribeTheSocketConnection = this.unsubscribeTheSocketConnection.bind(this);
   }
   socketConnect() {
     this.setState({
@@ -287,7 +288,7 @@ class App extends React.Component {
       history: null,
       selected: null,
       event: null,
-      timebasedEvent: null
+      timebasedEvent: []
     });
   }
   unsubscribeTheSocketConnection({ triggeredFrom = null }) {
@@ -345,6 +346,7 @@ class App extends React.Component {
           history={this.state.history}
           selected={this.state.selected}
           setSelected={this.setSelectedForHistoryView}
+          onOff={this.unsubscribeTheSocketConnection}
         ></AppScreen>
       );
     }
