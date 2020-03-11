@@ -107,13 +107,28 @@ export function AppScreen(props) {
                   Listen:Listen for server
                 </h3>
                 {props.listenEvents.map(event => (
-                  <Badge
-                    count={event.count}
-                    overflowCount={props.countLimit ? props.countLimit : 10}
-                    offset={[0, 20]}
-                    key={event.event}
+                  <div key={event.event}>
+                  <span
+                    style={{
+                      backgroundColor: 'red',
+                      color: '#fff',
+                      borderWidth: 1,
+                      borderColor: 'transparent',
+                      borderRadius: '50%',
+                      width: 20,
+                      height: 20,
+                      fontSize: 11,
+                      fontWeight: 'bold',
+                      padding: 5,
+                      position: 'relative',
+                     top: 30,
+                     zIndex: 100
+                    }}
                     onClick={() => onBadgeClick(event)}
                   >
+                    { event.count <= props.countLimit ? event.count: props.countLimitLimit + "+" }
+                  </span>
+                  
                     <Card
                       style={{ width: 300, marginTop: 16 }}
                       actions={[
@@ -137,7 +152,7 @@ export function AppScreen(props) {
                         description={event.data ? event.data : ""}
                       />
                     </Card>
-                  </Badge>
+                  </div>
                 ))}
               </Col>
               <Col span={12}>
@@ -150,13 +165,27 @@ export function AppScreen(props) {
                 </h3>
 
                 {props.sendEvents.map(event => (
-                  <Badge
-                    count={event.count}
-                    overflowCount={props.countLimit ? props.countLimit : 10}
-                    offset={[0, 20]}
-                    key={event.event}
+                  <div key={event.event}>
+                  <span
+                    style={{
+                      backgroundColor: 'red',
+                      color: '#fff',
+                      borderWidth: 1,
+                      borderColor: 'transparent',
+                      borderRadius: '50%',
+                      width: 20,
+                      height: 20,
+                      fontSize: 11,
+                      fontWeight: 'bold',
+                      padding: 5,
+                      position: 'relative',
+                     top: 30,
+                     zIndex: 100
+                    }}
                     onClick={() => onBadgeClick(event)}
                   >
+                    { event.count <= props.countLimit ? event.count: props.countLimitLimit + "+" }
+                  </span>
                     <Card
                       key={event.event}
                       style={{ width: 300, marginTop: 16 }}
@@ -186,7 +215,7 @@ export function AppScreen(props) {
                         description={event.data ? event.data : ""}
                       />
                     </Card>
-                  </Badge>
+                  </div>
                 ))}
               </Col>
             </Row>
